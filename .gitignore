@@ -1,0 +1,45 @@
+# Only the public hotel content belongs in source control.
+/data/*
+!/data/hotel.json
+
+# Registration and signature scans must never be published as website assets.
+/public/images/coverrr.jpg
+/public/images/signature.jpg
+/public/images/stamp.png
+
+# Real configuration, passwords, provider credentials, and private keys.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+
+# Dependencies, build output, hosting metadata, and logs.
+node_modules/
+.next/
+out/
+dist/
+.vercel/
+.netlify/
+coverage/
+*.log
+*.tsbuildinfo
+
+# Backups and private exports.
+backups/
+exports/
+hotel-website-backup*.json
+hotel-reservations*.csv
+hotel-newsletter-subscribers*.csv
+*.bak
+*.tmp
+
+# Local operating-system/editor files.
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.pyc

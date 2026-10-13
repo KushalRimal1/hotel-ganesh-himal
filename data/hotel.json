@@ -1,0 +1,70 @@
+{
+  "hotel": {
+    "name": "Hotel Ganesh Himal",
+    "shortName": "Ganesh Himal",
+    "location": "Lukla, Solukhumbu, Nepal",
+    "tagline": "Rest at the gateway to Everest",
+    "description": "A warm mountain stay in Lukla for trekkers, families, and travellers beginning or ending their Himalayan journey.",
+    "phone": "+977 9841425409",
+    "phones": ["+977 9841425409", "+977 9851039770"],
+    "email": "hello@hotelganeshhimallukla.com",
+    "address": "Lukla, Khumbu Pasang Lhamu, Solukhumbu, Nepal",
+    "checkIn": "12:00 PM",
+    "checkOut": "10:00 AM"
+  },
+  "rooms": [
+    {
+      "id": "normal-room",
+      "name": "Normal Room",
+      "description": "A welcoming twin room with warm wood finishes, soft bedding, and a curtained window. A comfortable, budget-friendly base to rest before the trail or unwind after a day in the Khumbu.",
+      "occupancy": "2 guests",
+      "beds": "2 single beds",
+      "size": "Simple comfort",
+      "price": "$25 USD",
+      "image": "/images/normal25dollar.jpg"
+    },
+    {
+      "id": "deluxe-room",
+      "name": "Deluxe Room",
+      "description": "A cosy twin room with wood-panelled detailing, patterned walls, bedside lighting, and a bright, curtained window. Thoughtful finishing touches create a relaxed setting for a restful stay in Lukla.",
+      "occupancy": "2 guests",
+      "beds": "2 single beds",
+      "size": "Deluxe comfort",
+      "price": "$35 USD",
+      "image": "/images/35dollardeluxe.jpg"
+    },
+    {
+      "id": "super-deluxe",
+      "name": "Super Deluxe Room",
+      "description": "Wake up to a mountain outlook in a beautifully wood-lined twin room. Soft bedding, warm bedside lighting, and a colourful traditional rug make this an inviting place to slow down and enjoy your Himalayan stay.",
+      "occupancy": "2 guests",
+      "beds": "2 single beds",
+      "size": "Mountain outlook",
+      "price": "$50 USD",
+      "image": "/images/maindeluxe50dollar.jpg"
+    }
+  ],
+  "amenities": [
+    { "icon": "wifi", "title": "Reliable Wi-Fi", "text": "Stay connected and plan the next part of your journey." },
+    { "icon": "meals", "title": "Delicious Breakfast, Lunch & Dinner", "text": "Enjoy delicious breakfast, lunch, and dinner in our welcoming dining hall. Ask our team about the daily menu." },
+    { "icon": "shower", "title": "Hot Showers", "text": "A welcome refresh after a long day on the trail." },
+    { "icon": "bag", "title": "Luggage Support", "text": "Ask our team about safe short-term luggage storage." },
+    { "icon": "plane", "title": "Airport Nearby", "text": "Conveniently located for Lukla airport arrivals and departures." },
+    { "icon": "helipad", "title": "Nearby Helipad", "text": "Convenient access to a nearby helipad. Ask our team for directions and local arrival information." },
+    { "icon": "info", "title": "Local Guidance", "text": "Practical help for weather, routes, porters, and onward plans." },
+    { "icon": "bed", "title": "Comfortable Twin Rooms", "text": "Rest in welcoming wood-lined rooms with twin beds and soft bedding before or after your journey through the Khumbu." }
+  ],
+  "experiences": [
+    { "number": "01", "title": "Land in Lukla", "text": "Arrive, settle in, and take a breath before the trail begins." },
+    { "number": "02", "title": "Walk the Khumbu", "text": "Set out toward Phakding and the legendary Everest region." },
+    { "number": "03", "title": "Return & Restore", "text": "Come back to a hot meal, warm welcome, and a comfortable bed." }
+  ],
+  "testimonials": [],
+  "gallery": [
+    "/images/dining-enhanced.webp",
+    "/images/maindeluxe50dollar.jpg",
+    "/images/washroom-clean.webp",
+    "/images/fulldining-enhanced.webp",
+    "/images/entryyy.jpeg"
+  ]
+}

@@ -1,0 +1,57 @@
+/* Animation enhancements never hide server-rendered content without JavaScript. */
+.welcome-returning .welcome-screen { display: none !important; }
+.welcome-returning body.welcome-active { overflow: auto; }
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: page-fade-out .18s ease-out both; }
+::view-transition-new(root) { animation: page-fade-in .32s ease-out both; }
+@keyframes page-fade-out { to { opacity: 0; } }
+@keyframes page-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.motion-enabled [data-motion-reveal][data-motion-state="pending"] { opacity: 0; }
+.motion-enabled .reveal[data-motion-state="pending"] { transition: none; }
+.motion-enabled [data-motion-reveal][data-motion-state="shown"], .motion-enabled [data-motion-reveal]:focus-within { opacity: 1; }
+.motion-enabled .hero-copy.visible > * { animation: none; }
+.site-scroll-progress { position: fixed; z-index: 1100; top: 0; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; pointer-events: none; }
+.site-scroll-progress[hidden] { display: none; }
+.motion-enabled .button:active, .motion-enabled .contact-actions a:active { transform: translateY(1px) scale(.98); }
+.motion-enabled .button-dark { position: relative; overflow: hidden; }
+.motion-enabled .button-dark::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.16) 48%, transparent 70%); transform: translateX(-120%); transition: transform .55s ease; pointer-events: none; }
+.motion-enabled .button-dark:hover::after, .motion-enabled .button-dark:focus-visible::after { transform: translateX(120%); }
+.motion-enabled .menu-toggle span { transform-origin: center; transition: transform .25s ease, opacity .2s ease; }
+.motion-enabled .menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.motion-enabled .menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.motion-enabled .menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.motion-enabled .gallery-dialog[open] { animation: photo-panel-in .36s cubic-bezier(.2,.75,.25,1) both; }
+.motion-enabled .gallery-dialog::backdrop { animation: photo-backdrop-in .28s ease-out both; }
+.motion-enabled .gallery-dialog[open] img { animation: photo-content-in .45s ease-out both; }
+.motion-enabled dialog[data-motion-closing="true"] { pointer-events: none; }
+@keyframes photo-panel-in { from { opacity: 0; transform: translateY(18px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes photo-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes photo-content-in { from { opacity: .35; } to { opacity: 1; } }
+.motion-enabled .feedback-success:not([hidden]) { animation: feedback-confirm-in .5s cubic-bezier(.2,.75,.25,1) both; }
+.motion-enabled .feedback-success:not([hidden]) .success-icon { animation: feedback-icon-in .55s .1s cubic-bezier(.2,.75,.25,1) both; }
+.motion-enabled .star-choice input:checked + span { animation: rating-selected .25s ease-out; }
+.motion-enabled .feedback-topics input:checked + span { animation: topic-selected .2s ease-out; }
+@keyframes feedback-confirm-in { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
+@keyframes feedback-icon-in { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
+@keyframes rating-selected { 50% { transform: scale(1.2); } }
+@keyframes topic-selected { 50% { transform: scale(.98); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-enabled .room-image img, .motion-enabled .gallery-frame img, .motion-enabled .story-photo img, .motion-enabled .page-hero-photo img { transition: transform .65s cubic-bezier(.2,.75,.25,1); }
+  .motion-enabled .room-card:hover .room-image img, .motion-enabled .gallery-item:hover .gallery-frame img { transform: scale(1.045); }
+  .motion-enabled .page-hero-photo:hover img { transform: scale(1.025); }
+  .motion-enabled .room-card:hover, .motion-enabled .explore-card:hover, .motion-enabled .contact-card:hover { box-shadow: 0 16px 36px color-mix(in srgb, var(--primary) 14%, transparent); }
+}
+@media (max-width: 1050px) {
+  .motion-enabled .nav-links.open { animation: mobile-menu-in .24s ease-out both; }
+  .motion-enabled .nav-links.open a { animation: mobile-link-in .28s calc(var(--menu-index, 0) * 25ms) ease-out both; }
+}
+@keyframes mobile-menu-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes mobile-link-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  [data-motion-reveal] { opacity: 1 !important; }
+  .site-scroll-progress { display: none; }
+  .motion-enabled *, .motion-enabled *::before, .motion-enabled *::after { animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,59 @@
+'use client';
+import { useEffect, useId, useState } from 'react';
+import calendar from '../lib/reservation-calendar.js';
+import datePolicy from '../public/stay-enquiry.js';
+import whatsApp from '../lib/reservation-whatsapp.js';
+
+export function ReservationFields({ rooms, value, onChange, disabled = false }) {
+  const prefix=useId();
+  const fields=[['name','Your full name','text'],['email','Email for updates','email'],['phone','Phone / WhatsApp (optional)','tel'],['checkIn','Arrival date','date'],['checkOut','Departure date','date'],['guests','Guests','number'],['roomsNeeded','Rooms requested','number']];
+  return <fieldset disabled={disabled} className="reservation-fields"><div className="reservation-field-grid">{fields.map(([key,label,type])=><div key={key}><label htmlFor={`${prefix}-${key}`}>{label}</label><input id={`${prefix}-${key}`} type={type} value={value[key] || ''} onChange={event=>onChange({...value,[key]:event.target.value})} required={key!=='phone'} maxLength={key==='name'?100:key==='email'?150:40} min={type==='date'?(key==='checkOut'?datePolicy.nextDay(value.checkIn)||datePolicy.todayInNepal():datePolicy.todayInNepal()):type==='number'?1:undefined} max={type==='number'?(key==='guests'?100:30):undefined} step={type==='number'?1:undefined} autoComplete={key==='name'?'name':key==='email'?'email':key==='phone'?'tel':undefined}/></div>)}<div><label htmlFor={`${prefix}-room`}>Room category</label><select id={`${prefix}-room`} value={value.roomId||''} onChange={event=>onChange({...value,roomId:event.target.value})} required><option value="">Choose a room</option>{rooms.map(room=><option key={room.id} value={room.id}>{room.name}{room.price?` · ${room.price}`:''}</option>)}</select></div></div><label htmlFor={`${prefix}-notes`}>Special requests (optional)</label><textarea id={`${prefix}-notes`} rows={3} maxLength={2000} value={value.notes||''} onChange={event=>onChange({...value,notes:event.target.value})}/><div hidden><input tabIndex={-1} autoComplete="off" aria-hidden="true" name="website" value={value.website||''} onChange={event=>onChange({...value,website:event.target.value})}/></div></fieldset>;
+}
+async function api(url,body) { const response=await fetch(url,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Please try again.');return data; }
+const statusLabels={pending:'Awaiting hotel confirmation',confirmed:'Confirmed by the hotel',declined:'Request not confirmed',cancelled:'Cancelled'};
+export default function ReservationDesk({ rooms, hotel }) {
+  const [tab,setTab]=useState('request'),[value,setValue]=useState({name:'',email:'',phone:'',checkIn:'',checkOut:'',guests:'2',roomsNeeded:'1',roomId:'',notes:''});
+  const [availability,setAvailability]=useState(null),[checking,setChecking]=useState(false),[availabilityError,setAvailabilityError]=useState(''),[busy,setBusy]=useState(false),[status,setStatus]=useState(''),[booking,setBooking]=useState(null),[reference,setReference]=useState(''),[email,setEmail]=useState('');
+  const [ready,setReady]=useState(false);
+  const [availabilityRefresh,setAvailabilityRefresh]=useState(0);
+  const [receiptEmail,setReceiptEmail]=useState('');
+  useEffect(()=>{setReady(true);},[]);
+  useEffect(()=>{const preference=new URLSearchParams(location.search).get('room');if(rooms.some(room=>room.id===preference))setValue(previous=>({...previous,roomId:preference}));},[rooms]);
+  useEffect(()=>{
+    let active=true;const controller=new AbortController();setChecking(true);setAvailabilityError('');
+    const timeout=setTimeout(async()=>{try {const query=new URLSearchParams();if(value.checkIn&&value.checkOut){query.set('checkIn',value.checkIn);query.set('checkOut',value.checkOut);}query.set('rooms',value.roomsNeeded||'1');const response=await fetch(`/api/availability?${query}`,{cache:'no-store',signal:controller.signal});const data=await response.json();if(!response.ok)throw new Error(data.error);if(active)setAvailability(data);}catch(error){if(active){setAvailability(null);setAvailabilityError(error.message);}}finally{if(active)setChecking(false);}},250);
+    return()=>{active=false;clearTimeout(timeout);controller.abort();};
+  },[value.checkIn,value.checkOut,value.roomsNeeded,tab,availabilityRefresh]);
+  const category=availability?.rooms.find(room=>room.id===value.roomId);
+  async function submit(event){
+    event.preventDefault();
+    const openWhatsApp=event.nativeEvent.submitter?.value==='whatsapp';
+    // Open during the guest's click so browsers do not block the async redirect.
+    const popup=openWhatsApp?window.open('about:blank','_blank'):null;
+    if(popup)popup.opener=null;
+    setBusy(true);setStatus('');
+    try{
+      const result=await api('/api/reservations',value);
+      setBooking(result.booking);setReference(result.booking.reference);setEmail(value.email);setReceiptEmail(value.email);
+      let message=result.message;
+      if(openWhatsApp){
+        const url=whatsApp.createWhatsAppUrl(result.booking,hotel,value.email);
+        if(!url){popup?.close();message+=' The hotel WhatsApp number needs checking. Please contact the hotel directly.';}
+        else if(popup&&!popup.closed){popup.location.replace(url);message+=' WhatsApp is opening with your saved details. Press Send there to share them with the hotel.';}
+        else{popup?.close();message+=' Use the WhatsApp button on your saved receipt below to share this request.';}
+      }
+      setStatus(message);
+    }catch(error){popup?.close();setStatus(error.message);}finally{setBusy(false);}
+  }
+  async function track(event){event.preventDefault();setBusy(true);setStatus('');setBooking(null);try{setBooking((await api('/api/reservations/status',{reference,email})).booking);setReceiptEmail(email);}catch(error){setStatus(error.message);}finally{setBusy(false);}}
+  async function refreshEmail(){setBusy(true);try{setBooking((await api('/api/reservations/status',{reference:booking.reference,email})).booking);setStatus('Latest request and email status loaded.');}catch(error){setStatus(error.message);}finally{setBusy(false);}}
+  function download(){const url=URL.createObjectURL(new Blob([calendar.createCalendar(booking,hotel)],{type:'text/calendar;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=`${booking.reference}.ics`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  function print(){document.body.classList.add('print-reservation');window.addEventListener('afterprint',()=>document.body.classList.remove('print-reservation'),{once:true});window.print();}
+  const submitDisabled=busy||checking||Boolean(availabilityError)||availability?.enabled===false||category?.accepting===false;
+  const whatsAppContacts=booking?[...new Set(hotel.phones?.length?hotel.phones:[hotel.phone])].map(phone=>({phone,url:whatsApp.createWhatsAppUrl(booking,hotel,receiptEmail,phone)})).filter(contact=>contact.url):[];
+  return <section className="reservation-desk section" id="reservation-requests" aria-labelledby="reservation-title" inert={!ready}><div className="section-heading"><div><p className="eyebrow">Your stay, directly with us</p><h2 id="reservation-title">Request a stay.<br/><em>Keep in touch.</em></h2></div><p>Send a reservation request here and follow its status using your reference and email. Our team confirms availability and price before your booking is final.</p></div><div className="reservation-tabs" role="group" aria-label="Reservation tools"><button type="button" aria-pressed={tab==='request'} onClick={()=>{setTab('request');setStatus('');setBooking(null);}}>Request a stay</button><button type="button" aria-pressed={tab==='track'} onClick={()=>{setTab('track');setStatus('');setBooking(null);}}>Track my request</button></div>
+    {tab==='request'?<form onSubmit={submit} className="reservation-form"><ReservationFields rooms={rooms} value={value} onChange={setValue} disabled={busy}/><p className="reservation-availability" role="status">{checking?'Checking request availability…':availabilityError||(!availability?.enabled&&availability?'Online requests are paused. Please contact the hotel.':category?.message||'Select a room and dates to check request availability.')}</p><p className="reservation-help">Prices shown are listed room rates. The hotel will confirm the final price, rate basis, and special requests directly.</p><div className="reservation-submit-actions"><button className="button button-dark" type="submit" disabled={submitDisabled}>{busy?'Saving request…':'Submit reservation request ↗'}</button><button className="button reservation-whatsapp" type="submit" name="channel" value="whatsapp" disabled={submitDisabled}>Save & open WhatsApp ↗</button></div><p className="reservation-help">The WhatsApp option saves this same request and opens its details in WhatsApp. Press Send in WhatsApp to deliver the message.</p></form>:<form onSubmit={track} className="reservation-form"><div className="reservation-field-grid"><div><label htmlFor="reservation-reference">Request reference</label><input id="reservation-reference" value={reference} onChange={event=>setReference(event.target.value)} placeholder="GH-…" maxLength={30} required/></div><div><label htmlFor="reservation-track-email">Email used for your request</label><input id="reservation-track-email" type="email" value={email} onChange={event=>setEmail(event.target.value)} maxLength={150} required/></div></div><button className="button button-dark" disabled={busy}>{busy?'Checking…':'Check request status ↗'}</button></form>}
+    {tab==='request'&&availabilityError&&<button className="reservation-retry" type="button" onClick={()=>setAvailabilityRefresh(value=>value+1)}>Retry availability check</button>}
+    <p className="reservation-status" role="status" aria-live="polite">{status}</p>{booking&&<article className="reservation-result"><p className="eyebrow">{hotel.name}</p><h3>{statusLabels[booking.status]}</h3><p className="reservation-reference">Reference: <strong>{booking.reference}</strong></p><dl><div><dt>Guest</dt><dd>{booking.name}</dd></div><div><dt>Room category</dt><dd>{booking.roomName}</dd></div><div><dt>Dates</dt><dd>{booking.checkIn} → {booking.checkOut}</dd></div><div><dt>Your party</dt><dd>{booking.guests} guests · {booking.roomsNeeded} rooms requested</dd></div>{booking.agreedPrice&&<div><dt>Agreed price / terms</dt><dd>{booking.agreedPrice}</dd></div>}</dl>{booking.guestMessage&&<p className="reservation-hotel-message">{booking.guestMessage}</p>}{booking.status==='pending'&&<p>Save this reference. This request is awaiting approval; it is not yet a confirmed booking.</p>}<p className="reservation-email-status" role="status">{booking.emailDelivery==='accepted'?'The mail server accepted your email. Check your Inbox and Spam folders.':booking.emailDelivery==='failed'?'Your request is saved, but the email could not be sent. Contact the hotel to check your email address.':'Your request is saved. Its email is queued for delivery.'}</p><div className="reservation-result-actions">{whatsAppContacts.map((contact,index)=><a key={contact.phone} className="button reservation-whatsapp" href={contact.url} target="_blank" rel="noopener noreferrer">{index===0?'Send request on WhatsApp ↗':`WhatsApp ${contact.phone} ↗`}</a>)}<button type="button" onClick={refreshEmail} disabled={busy}>Refresh email status</button><button type="button" onClick={print}>Print / save as PDF</button>{booking.status==='confirmed'&&<button type="button" onClick={download}>Add confirmed stay to calendar ↓</button>}<a href={`tel:${hotel.phone.replace(/\s/g,'')}`}>Call the hotel ↗</a></div>{Boolean(whatsAppContacts.length)&&<p className="reservation-help">WhatsApp opens with this saved request and reference. Press Send in WhatsApp to share it with the hotel.</p>}</article>}
+  </section>;
+}
