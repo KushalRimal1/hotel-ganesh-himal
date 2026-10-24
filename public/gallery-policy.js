@@ -14,7 +14,8 @@
     'washroom-clean.webp': 'The washroom',
     'washroom.jpg': 'The washroom',
     'fulldining-enhanced.webp': 'Shared dining spaces',
-    'entryyy.jpeg': 'A warm welcome inside'
+    'entryyy.jpeg': 'A warm welcome inside',
+    'helipad.jpg': 'The helipad'
   };
   function photoLabel(image, index = 0) {
     let filename = String(image || '').split(/[?#]/)[0].split('/').pop();
