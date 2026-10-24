@@ -646,6 +646,7 @@ button { color: inherit; }
 .gallery-frame { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper); }
 .gallery-frame img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 .gallery-item.washroom-photo .gallery-frame img { object-position: center bottom; }
+.gallery-item.helipad-photo .gallery-frame img { object-position: center bottom; }
 .gallery-item > span { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 14px 16px; font-size: .76rem; }
 .gallery-item i { color: var(--rust); font-style: normal; }
 .gallery-dialog { width: min(1100px, calc(100vw - 32px)); max-height: 94svh; padding: 18px; border: 0; border-radius: 12px; background: var(--cream); }
