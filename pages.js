@@ -47,8 +47,7 @@ function homeExplore(data) {
 }
 
 function stayGuide(data) {
-  const room = data.rooms.find(room => room.id === 'super-deluxe') || data.rooms.find(room => /\$\s*50\b/.test(room.price)) || data.rooms[data.rooms.length - 1];
-  const featured = room ? `<article class="stay-guide-featured"><span>01</span>${room.image ? `<img class="stay-guide-room-photo" src="${escapeHtml(room.image)}" alt="${escapeHtml(room.name)} at ${escapeHtml(data.hotel.name)}" loading="lazy" width="800" height="600">` : ''}<h3>${escapeHtml(room.name)}</h3><strong class="stay-guide-room-price">${escapeHtml(room.price)}</strong><p>${escapeHtml(room.occupancy)} · ${escapeHtml(room.beds)}<br>${escapeHtml(room.size)}</p><a class="text-link" href="/rooms/${encodeURIComponent(room.id)}">Explore this room <span aria-hidden="true">↗</span></a></article>` : '';
+  const featured = `<article><span>01</span><h3>Find your room</h3><p>Choose from ${escapeHtml(data.rooms.map(room => room.name).join(', '))}. Explore our room options to find the right comfort for your stay in Lukla.</p></article>`;
   return `<section class="stay-guide section"><div><p class="eyebrow">Find your mountain comfort</p><h2>A stay made <em>simple.</em></h2></div><div class="stay-guide-grid">${featured}<article><span>02</span><h3>Rates & availability</h3><p>Rates and room availability are confirmed directly with the hotel. Share your dates and number of guests by phone or WhatsApp.</p></article><article><span>03</span><h3>Your group, your stay</h3><p>Travelling with family or trekking partners? Tell us your room preferences so we can help you plan.</p></article></div></section>`;
 }
 
