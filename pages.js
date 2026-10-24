@@ -131,6 +131,7 @@ function renderPage(pathname) {
   html = html.replace(/(<a\b[^>]*data-whatsapp[^>]*href=")[^"]*"/g, `$1${escapeHtml(contentMarkup.whatsappUrl(data.hotel.phone))}"`);
   html = html.replace('<span id="year"></span>', `<span id="year">${new Date().getFullYear()}</span>`);
   const $ = cheerio.load(html);
+  $('.topline > div').remove();
   $('[data-description]').text(data.hotel.description);
   $('[data-address]').text(data.hotel.address);
   $('[data-phone]').each((index, item) => { const phone = data.hotel.phones[Number($(item).attr('data-phone')) || 0]; if (!phone) { $(item).remove(); return; } $(item).text(phone).attr('href', `tel:${phone.replace(/\s/g, '')}`); });
