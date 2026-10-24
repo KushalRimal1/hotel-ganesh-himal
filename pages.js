@@ -36,6 +36,14 @@ function callToAction() {
   return `<section class="page-cta section"><div><p class="eyebrow">Make yourself at home</p><h2>Ready for your <em>Lukla chapter?</em></h2><p>Tell us your dates and group size. Our team will help you plan your stay.</p></div><a class="button button-dark" href="/contact#booking">Talk to our team <span>↗</span></a></section>`;
 }
 
+function ownersSection() {
+  const owners = [
+    { name: 'Bhimsen Prasad Rimal', image: '/images/bhimsen.jpg', description: 'From his early days as a porter to becoming a co-owner of Hotel Ganesh Himal, Bhimsen Prasad Rimal’s journey reflects dedication and perseverance. Today, his story is part of the hotel’s identity—a mountain home with roots in the trekking community.' },
+    { name: 'Ishwor Bahadur Thapa Magar', image: '/images/ishwor%20photo.jpg', description: 'Before stepping into hotel ownership, Ishwor Bahadur Thapa Magar worked as a porter. Today, as a co-owner of Hotel Ganesh Himal, he shares a new chapter of that journey, rooted in the determination that carried him from the trails to hospitality.' }
+  ];
+  return `<section class="story-owners section" aria-labelledby="story-owners-title"><div class="story-owners-heading"><p class="eyebrow">The people behind our mountain home</p><h2 id="story-owners-title">Meet the <em>owners.</em></h2><p>Hotel Ganesh Himal is owned by Bhimsen Prasad Rimal and Ishwor Bahadur Thapa Magar.</p></div><div class="story-owners-grid">${owners.map(owner => `<article class="story-owner"><div class="story-owner-photo"><img src="${owner.image}" alt="${escapeHtml(owner.name)}, co-owner of Hotel Ganesh Himal" loading="lazy" width="640" height="640"></div><div class="story-owner-copy"><p class="eyebrow">Co-owner</p><h3>${escapeHtml(owner.name)}</h3><p>${escapeHtml(owner.description)}</p></div></article>`).join('')}</div></section>`;
+}
+
 function homeExplore(data) {
   const cards = [
     ['rooms', 'normal25dollar.jpg', '01', 'A restful night', `${data.rooms.map(room => `${room.name}: ${room.price}`).join(' · ')}.`, 'Explore rooms'],
@@ -97,6 +105,7 @@ function renderPage(pathname) {
       content = content.replace('<div class="room-grid"', filters + '<div class="room-grid"');
       content += roomComparison(data.rooms) + stayGuide(data) + section('booking-faq');
     }
+    if (key === 'story') content += ownersSection();
     if (key === 'amenities') content += section('food-banner');
     if (key === 'contact') content += section('booking-faq') + section('location-section') + (settings.feedbackEnabled ? section('feedback-section') : '') + tripAdvisorMarkup(settings.tripadvisorUrl) + (settings.reviewsEnabled ? guestReviewsMarkup(getBackend().getPublicReviews()) : '');
     else content += callToAction();

@@ -261,6 +261,25 @@ button { color: inherit; }
 .story-photo figcaption span { color: #e5b18c; font-size: .56rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .story-photo figcaption strong { font: 500 1.1rem var(--serif); }
 
+.story-owners { background: var(--cream); }
+.story-owners-heading { max-width: 700px; margin-bottom: 44px; }
+.story-owners-heading h2 { margin: 0 0 20px; font: 400 clamp(2.6rem, 5vw, 4.8rem)/1.08 var(--serif); letter-spacing: -.035em; }
+.story-owners-heading h2 em { color: var(--rust); font-weight: 400; }
+.story-owners-heading > p:last-child { margin: 0; }
+.story-owners-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+.story-owner { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--white); }
+.story-owner-photo { aspect-ratio: 1; overflow: hidden; background: var(--paper); }
+.story-owner-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.story-owner-copy { padding: 28px 30px 30px; }
+.story-owner-copy .eyebrow { margin-bottom: 10px; }
+.story-owner-copy h3 { margin: 0; font: 400 clamp(1.6rem, 2.7vw, 2.25rem)/1.2 var(--serif); overflow-wrap: anywhere; }
+.story-owner-copy > p:last-child { margin: 12px 0 0; font-size: .85rem; }
+@media (max-width: 720px) {
+  .story-owners-grid { grid-template-columns: 1fr; gap: 28px; }
+  .story-owners-heading { margin-bottom: 30px; }
+  .story-owner-copy { padding: 24px; }
+}
+
 .rooms { background: var(--paper); }
 .section-heading { display: grid; grid-template-columns: 1fr 330px; align-items: end; gap: 70px; margin-bottom: 62px; }
 .section-heading h2, .amenities-heading h2, .food-copy h2, .newsletter h2 { margin: 0; font: 400 clamp(3rem, 5vw, 5.4rem)/.97 var(--serif); letter-spacing: -.035em; }
