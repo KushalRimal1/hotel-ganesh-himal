@@ -74,3 +74,12 @@ test('Resend uses server-only authorization and idempotency, and provider failur
   const result=await transport.sendMail({to:'owner@example.com',subject:'Request',text:'Private details',replyTo:{address:'guest@example.com'},idempotencyKey:'stable-id'});assert.equal(result.messageId,'accepted-id');assert.equal(captured.options.headers['Idempotency-Key'],'stable-id');assert.equal(JSON.parse(captured.options.body).reply_to,'guest@example.com');
   const failing=createMailTransport({RESEND_API_KEY:'test-only-key',EMAIL_FROM:'sender@example.com',FEEDBACK_TO:'owner@example.com'},async()=>Response.json({message:'Provider rejected'},{status:429}));await assert.rejects(failing.sendMail({to:'owner@example.com',subject:'x',text:'x'}),error=>error.code==='EMAIL_RATE_LIMIT');
 });
+test('Resend rejection diagnostics preserve the reason without logging credentials or addresses',async()=>{
+  const transport=createMailTransport({RESEND_API_KEY:'test-only-key',EMAIL_FROM:'sender@example.com',FEEDBACK_TO:'owner@example.com'},async()=>Response.json({name:'validation_error',message:'Invalid sender sender@example.com\ncredential test-only-key'},{status:422}));
+  await assert.rejects(transport.sendMail({to:'owner@example.com',subject:'Test',text:'Test'}),error=>{
+    assert.equal(error.code,'EMAIL_REJECTED');assert.equal(error.responseCode,422);
+    assert.match(error.providerError,/validation_error: Invalid sender/);
+    assert.doesNotMatch(error.providerError,/sender@example\.com|test-only-key|[\r\n]/);
+    return true;
+  });
+});
