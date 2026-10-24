@@ -1,5 +1,6 @@
 import auth from '../../../../../lib/admin-auth.js';
 import backend from '../../../../../lib/backend.js';
+import scope from '../../../../../lib/route-storage.js';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -12,11 +13,11 @@ function denied(request) {
 function errorResponse(error) { return Response.json({ error: error.status ? error.message : 'Could not update feedback. Please try again.' }, { status: error.status || 500, headers: { 'Cache-Control': 'no-store' } }); }
 export async function PATCH(request, { params }) {
   const rejection = denied(request); if (rejection) return rejection;
-  try { const { id } = await params; return Response.json(backend.getBackend().updateAdminReview(id, await backend.receiveJson(request)), { headers: { 'Cache-Control': 'no-store' } }); }
+  try { const { id } = await params;const body=await backend.receiveJson(request); return scope.write(()=>Response.json(backend.getBackend().updateAdminReview(id,body), { headers: { 'Cache-Control': 'no-store' } })); }
   catch (error) { return errorResponse(error); }
 }
 export async function DELETE(request, { params }) {
   const rejection = denied(request); if (rejection) return rejection;
-  try { const { id } = await params; return Response.json(backend.getBackend().deleteAdminReview(id), { headers: { 'Cache-Control': 'no-store' } }); }
+  try { const { id } = await params; return scope.write(()=>Response.json(backend.getBackend().deleteAdminReview(id), { headers: { 'Cache-Control': 'no-store' } })); }
   catch (error) { return errorResponse(error); }
 }

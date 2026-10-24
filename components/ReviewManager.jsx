@@ -101,6 +101,6 @@ export default function ReviewManager() {
       </div>
     </>}
     <p className="admin-status" role="status" aria-live="polite">{status}</p>
-    <p className="admin-storage-note">Changes are saved on the server. When hosting, keep the feedback directory on persistent storage and configure <code>HOTEL_DATA_DIR</code>.</p>
+    <p className="admin-storage-note">Changes are saved privately. Netlify uses durable Blobs storage; local development uses the project's data directory.</p>
   </main>;
 }

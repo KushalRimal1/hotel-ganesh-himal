@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 import { getSitePage } from '../lib/site';
 import welcomePolicy from '../lib/welcome-policy.js';
-import management from '../lib/site-admin.js';
 
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#123b36' };
 
@@ -10,8 +9,8 @@ const welcomeNavigationGuard = welcomePolicy.navigationScript();
 
 export default async function RootLayout({ children }) {
   const pathname = (await headers()).get('x-hotel-pathname') || '/';
-  const page = getSitePage(pathname);
-  const home = page?.key === 'home' && management.getSiteAdmin().read().settings.welcomeEnabled;
+  const page = await getSitePage(pathname);
+  const home = page?.key === 'home' && page.settings.welcomeEnabled;
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

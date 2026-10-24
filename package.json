@@ -5,23 +5,25 @@
   "description": "Official website for Hotel Ganesh Himal Lukla",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build-public-assets.cjs && next build",
     "start": "next start",
     "admin:setup": "node scripts/setup-review-admin.cjs",
     "publish:check": "node scripts/check-publication.cjs",
     "check": "node --check server.js && node --check pages.js && node --check lib/content.js && node --check lib/reviews.js && node --check lib/backend.js && node --check lib/admin-auth.js && node --check lib/weather.js && node --check lib/welcome-policy.js && node --check public/script.js && node --check public/hotspot.js && node --check public/motion.js",
-    "test": "node --test tests/backend.test.cjs tests/admin-auth.test.cjs tests/site-admin.test.cjs tests/reservations.test.cjs tests/reservation-whatsapp.test.cjs tests/stay-enquiry.test.cjs tests/gallery-policy.test.cjs tests/hotspot.test.cjs tests/weather.test.cjs tests/welcome-policy.test.cjs"
+    "test": "node --test tests/backend.test.cjs tests/admin-auth.test.cjs tests/site-admin.test.cjs tests/netlify-storage.test.cjs tests/reservations.test.cjs tests/reservation-whatsapp.test.cjs tests/stay-enquiry.test.cjs tests/gallery-policy.test.cjs tests/hotspot.test.cjs tests/weather.test.cjs tests/welcome-policy.test.cjs"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.4",
     "cheerio": "^1.2.0",
     "html-react-parser": "^6.1.8",
-    "next": "^16.4.0",
+    "next": "^16.4.3",
     "nodemailer": "^10.1.0",
     "qrcode": "^1.5.4",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "undici": "^7.30.0"
   },
   "engines": {
-    "node": ">=20.9"
+    "node": ">=22.12.0 <25"
   }
 }

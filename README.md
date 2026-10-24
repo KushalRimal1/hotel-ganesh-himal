@@ -8,11 +8,33 @@ The GitHub repository contains application code, public hotel photos, `data/hote
 
 Before committing future updates, stage only intended source files and run `npm run publish:check`. This checks the Git index for private paths, known local credentials, private guest email addresses, and credential signatures without printing secret values. Use `npm run publish:check -- --worktree` to check eligible local source files before staging.
 
-For hosting, enter the SMTP and administrator values from your private local `.env` into the hosting provider's **environment variables/secrets** settings. Keep them out of GitHub source and browser code. Set `SITE_URL` to the hosted domain and `HOTEL_DATA_DIR` to a writable persistent disk. Move any existing guest records or private uploads to that disk through a private transfer, not through the public repository. Start with `npm ci`, build with `npm run build`, and run with `npm start`; the host supplies its `PORT` environment variable. Node.js 22/24 LTS is recommended.
+For hosting, keep administrator and email credentials in the hosting provider's **environment variables/secrets** settings, outside GitHub and browser code. Set `SITE_URL` to the hosted domain. Netlify automatically uses durable Blobs storage and serverless functions; it does not use a persistent disk or `npm start`. A traditional single Node server can still use `HOTEL_DATA_DIR` on a persistent disk and `npm start`.
+
+## Netlify Free deployment
+
+Connect this repository's `main` branch. Netlify detects Next.js; use build command `npm run build` and publish directory `.next` (also set in `netlify.toml`). `netlify.toml` pins Node.js 24.21.0. Private runtime data is never created in `/var/task/data`, and the startup instrumentation does not start a disk-based worker on Netlify.
+
+The storage driver automatically selects Netlify when the Netlify/Lambda runtime is present. Set `HOTEL_STORAGE_DRIVER=netlify` explicitly in Netlify's runtime environment if needed. Netlify normally supplies Blobs authentication automatically. Only if the runtime reports a missing Blobs connection, configure the project's `NETLIFY_SITE_ID` and a private `NETLIFY_AUTH_TOKEN` with access to that project; mark the token as secret. Do not put it in GitHub or a `NEXT_PUBLIC_*` variable.
+
+Private state uses the **site-wide** `hotel-private` store and `state-v1` key. Its feedback, subscribers, reservations, and saved CMS content are committed together with strong reads and ETag/only-if-new conditional writes. Conflicts retry against fresh state or return a conflict error, never overwrite another user's newer changes. Production store names are stable across deployments; branch/deploy-preview stores have isolated names. Cloud failures return an error instead of silently saving to a temporary disk.
+
+Uploaded JPEG/PNG/WebP images use the separate `hotel-media` store, served only through validated UUID image paths. The build generates a manifest of existing public photos, so the admin image picker works even when Netlify serves `public/images` separately from the function bundle. Netlify uploads are capped at 4 MB; the browser optimises larger source photos (up to 10 MB) to WebP before upload. No private registration/signature files are included.
+
+Copy `ADMIN_REVIEW_PASSWORD_HASH` and `ADMIN_SESSION_SECRET` privately from the local `.env` into Netlify. Set `SITE_URL=https://hotelganeshhimal.com.np`. To enable cloud email, also set private `RESEND_API_KEY`, `EMAIL_FROM` (an address on a verified Resend domain), and `FEEDBACK_TO` (the hotel's receiving Gmail/inbox). Missing email settings leave messages queued without preventing the website from loading. Local development retains SMTP support.
+
+Email processing runs with `next/after` after a successful submission and via the scheduled `hotel-email-retry` function every 15 minutes. Durable leases prevent concurrent workers sending the same message, and Resend requests use stable idempotency keys. Failed messages use backoff and retain safe error diagnostics; provider acceptance is recorded only after a successful response. The admin can retry manually. Scheduled functions run only for published deploys and can be triggered with Netlify's Run now control.
+
+The current public booking flow remains the upper **direct-WhatsApp planner**, with no separate lower reservation form. Existing local private records are not automatically uploaded. Use the optional private import script described below if those records should be transferred. Never transfer `.env`, `review-admin-login.txt`, or `private-assets/` as public files.
+
+Validate deployment by opening Home/Contact, signing into `/admin`, saving an edit, submitting/moderating feedback, and uploading a photo. Redeploy and confirm all cloud records and uploads remain. The Free plan has usage/credit limits; monitor them in Netlify's dashboard.
+
+### Optional private-data import
+
+To inspect the existing local records without uploading anything, run `node scripts/import-private-data.cjs`. It prints counts only. To transfer them to an **empty** production store, privately set `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` in local `.env`, then run `node scripts/import-private-data.cjs --apply`. The script refuses to overwrite an existing non-empty target. It imports only the four known record/content JSON files and UUID-named images from `data/uploads/`; password files and registration/signature assets are excluded. Existing limits and previously sent email statuses are retained. Keep the token private and remove/revoke local migration access when finished.
 
 ## Run locally
 
-Node.js 20.9 or newer is required (Node.js 22 or 24 LTS recommended).
+Node.js 22.12 or newer within the Node.js 22/24 LTS lines is required. Netlify is configured for Node.js 24.21.0.
 
 ```bash
 npm install

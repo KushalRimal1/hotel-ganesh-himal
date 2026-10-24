@@ -152,5 +152,9 @@ function renderPage(pathname) {
 function getPagePaths() {
   return [...Object.values(pageInfo).map(page => page.path), ...readHotelData().rooms.map(room => `/rooms/${room.id}`)];
 }
+function getBuildPagePaths() {
+  const baseline = JSON.parse(fs.readFileSync(path.join(ROOT_DIR,'data','hotel.json'),'utf8'));
+  return [...Object.values(pageInfo).map(page=>page.path), ...baseline.rooms.map(room=>`/rooms/${room.id}`)];
+}
 
-module.exports = { renderPage, getPageDetails, getPagePaths, readHotelData, pageInfo };
+module.exports = { renderPage, getPageDetails, getPagePaths, getBuildPagePaths, readHotelData, pageInfo };

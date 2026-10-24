@@ -11,7 +11,7 @@ const config = {
         { source: `/rooms/${oldId}`, destination: `/rooms/${newId}`, permanent: true },
         { source: `/rooms/${oldId}.html`, destination: `/rooms/${newId}`, permanent: true }
       ]),
-      ...site.getPagePaths().filter(path => path !== '/').map(path => ({ source: `${path}.html`, destination: path, permanent: true }))
+      ...site.getBuildPagePaths().filter(path => path !== '/').map(path => ({ source: `${path}.html`, destination: path, permanent: true }))
     ];
   },
   async headers() {
